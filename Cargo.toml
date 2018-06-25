@@ -1,0 +1,6 @@
+[package]
+name = "netcdfrs"
+version = "0.1.0"
+authors = ["Justin Dennison <justin1dennison@gmail.com>"]
+
+[dependencies]
