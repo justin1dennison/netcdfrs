@@ -5,3 +5,7 @@ authors = ["Justin Dennison <justin1dennison@gmail.com>"]
 
 [dependencies]
 byteorder = "*"
+serde = "*"
+serde_json = "*"
+serde_derive = "*"
+ndarray = "*"
