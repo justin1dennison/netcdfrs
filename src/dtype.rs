@@ -1,4 +1,3 @@
-
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub enum Dtype {
     Float32,
@@ -6,5 +5,5 @@ pub enum Dtype {
     Int16,
     Int32,
     Int64,
-    Str
+    Str,
 }

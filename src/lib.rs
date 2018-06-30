@@ -4,21 +4,19 @@ extern crate serde_json;
 #[macro_use]
 extern crate serde_derive;
 
-pub mod variable;
-pub mod dimension;
-pub mod shape;
 pub mod dataset;
+pub mod dimension;
 pub mod dtype;
+pub mod shape;
+pub mod variable;
 
 pub mod prelude {
-    pub use variable::*;
-    pub use dimension::*;
-    pub use shape::*;
     pub use dataset::*;
-    pub use dtype::*; 
+    pub use dimension::*;
+    pub use dtype::*;
+    pub use shape::*;
+    pub use variable::*;
 }
-
-
 
 #[cfg(test)]
 mod tests {
