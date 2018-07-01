@@ -11,11 +11,11 @@ pub mod shape;
 pub mod variable;
 
 pub mod prelude {
-    pub use dataset::*;
-    pub use dimension::*;
-    pub use dtype::*;
-    pub use shape::*;
-    pub use variable::*;
+    pub use dataset::Dataset;
+    pub use dimension::Dimension;
+    pub use dtype::Dtype;
+    pub use shape::Shape;
+    pub use variable::Variable;
 }
 
 // #[cfg(test)]
