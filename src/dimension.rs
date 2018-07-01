@@ -11,4 +11,5 @@ impl Dimension {
     pub fn new(name: String, size: u64, dtype: Dtype) -> Dimension {
         return Dimension { name, size, dtype };
     }
+
 }

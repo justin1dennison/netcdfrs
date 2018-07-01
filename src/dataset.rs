@@ -11,19 +11,15 @@ fn modulo(a: i32, b: i32) -> i32 {
     ((a % b) + b) % b
 }
 
-// const NCTYPES: HashMap<String, NCTYPE> = [
-//     (1, ("b", 1)),
-//     (2, ("c", 1)),
-//     ()
-// ]
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Dataset {
-    filename: Option<String>,
-    variables: HashMap<String, Variable>,
-    dimensions: HashMap<String, Dimension>,
-    version: i32,
-    numrecs: i32,
+    pub filename: Option<String>,
+    pub variables: HashMap<String, Variable>,
+    pub dimensions: HashMap<String, Dimension>,
+    pub attributes: HashMap<String, String>,
+    pub version: i32,
+    pub numrecs: i32,
 }
 
 fn unpack_int(fp: &mut File) -> i32 {
@@ -47,6 +43,7 @@ impl Dataset {
             filename: None,
             variables: HashMap::<String, Variable>::new(),
             dimensions: HashMap::<String, Dimension>::new(),
+            attributes: HashMap::<String, String>::new(),
             version: 4,
             numrecs: 0,
         }
@@ -90,15 +87,10 @@ impl Dataset {
             let name = unpack_string(&mut fp, name_len as usize);
             let forward_amt = modulo(-1i32 * name_len as i32, 4);
             unpack_string(&mut fp, forward_amt as usize);
-            // println!("{:#?}", name);
-            // let size = unpack_int(&mut fp);
-
             let nc_type = unpack_int(&mut fp);
             let n = unpack_int(&mut fp);
-            let typemap: HashMap<u8, (&str, u8)> = [
-                (1, ("b", 1)),
-                (2, ("c", 1))
-            ].iter().cloned().collect();
+            let typemap: HashMap<u8, (&str, u8)> =
+                [(1, ("b", 1)), (2, ("c", 1))].iter().cloned().collect();
             let (typecode, size) = typemap[&(nc_type as u8)];
             let count = (n as i32) * (size as i32);
             let values = unpack_string(&mut fp, count as usize);
@@ -106,12 +98,30 @@ impl Dataset {
             unpack_string(&mut fp, forward_amt as usize);
             attributes.insert(name, values);
         }
-        println!("{:#?}", attributes);
         let variables = HashMap::<String, Variable>::new();
+        let varheader = unpack_int(&mut fp);
+        match varheader {
+            0 | 11 => println!("successfully read varheader: {}", varheader),
+            _ => panic!("Couldn't read the varheader"),
+        }
+        let varcount = unpack_int(&mut fp);
+        for v in 0..varcount {
+            let name_len = unpack_int(&mut fp);
+            let name = unpack_string(&mut fp, name_len as usize);
+            println!("{:?}", name);
+            let mut dims = vec![];
+            // let shape = vec![];
+            let dimnum = unpack_int(&mut fp);
+            for _d in 0..dimnum {
+                let dimid = unpack_int(&mut fp);
+                dims.push(dimid);
+            }
+        }
         Dataset {
             filename: Some(filename),
             variables,
             dimensions,
+            attributes,
             version: version_byte as i32,
             numrecs,
         }
