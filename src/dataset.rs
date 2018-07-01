@@ -1,13 +1,11 @@
 use std::collections::HashMap;
 use std::fs::File;
-use byteorder::{BigEndian, ReadBytesExt};
+use byteorder::{ReadBytesExt};
 
 use dimension::Dimension;
 use dtype::Dtype;
 use variable::Variable;
 use helpers::{unpack_int, unpack_string, modulo};
-
-
 
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -19,8 +17,6 @@ pub struct Dataset {
     pub version: i32,
     pub numrecs: i32,
 }
-
-
 
 impl Dataset {
     pub fn new() -> Dataset {
@@ -42,24 +38,7 @@ impl Dataset {
         }
         let version_byte = fp.read_u8().unwrap();
         let numrecs = unpack_int(&mut fp);
-        let dim_header = unpack_int(&mut fp);
-        match dim_header {
-            0 | 10 => println!("Success"),
-            _ => panic!("improper header"),
-        }
-        let dim_count = unpack_int(&mut fp);
-        let mut dimensions = HashMap::<String, Dimension>::new();
-        for _ in 0..dim_count {
-            let name_len = unpack_int(&mut fp);
-            let name = unpack_string(&mut fp, name_len as usize);
-            let forward_amt = modulo(-1i32 * name_len as i32, 4);
-            unpack_string(&mut fp, forward_amt as usize);
-            let size = unpack_int(&mut fp);
-            dimensions.insert(
-                name.clone(),
-                Dimension::new(name.clone(), size as u64, Dtype::Float32),
-            );
-        }
+        let dimensions = Dimension::from_file(&mut fp);
         let attr_header = unpack_int(&mut fp);
         match attr_header {
             0 | 12 => println!("Success reading attrs header: {:#?}", attr_header),
