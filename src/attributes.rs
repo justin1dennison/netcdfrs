@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::io::Read;
 
+use constants::typemap;
 use helpers::*;
 
 pub struct Attribute;
@@ -22,15 +23,7 @@ impl Attribute {
             unpack_string(fp, forward_amt as usize);
             let nc_type = unpack_int(fp);
             let n = unpack_int(fp);
-            let typemap: HashMap<u8, (&str, u8)> = [
-                (1, ("b", 1)), 
-                (2, ("c", 1)),
-                (3, ("h", 2)),
-                (4, ("i", 4)),
-                (5, ("f", 4)),
-                (6, ("d", 8))
-            ].iter().cloned().collect();
-            let (_typecode, size) = typemap[&(nc_type as u8)];
+            let (_typecode, size) = typemap()[&(nc_type as u8)];
             let count = (n as i32) * (size as i32);
             let values = unpack_string(fp, count as usize);
             let forward_amt = modulo(-1i32 * count as i32, 4);

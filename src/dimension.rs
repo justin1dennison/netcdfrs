@@ -16,24 +16,22 @@ impl Dimension {
         return Dimension { name, size, dtype };
     }
 
-    pub fn from_file(fp: &mut File) -> HashMap<String, Dimension> {
+    pub fn from_file(fp: &mut File) -> Vec<Dimension> {
         let dim_header = unpack_int(fp);
         match dim_header {
             0 | 10 => println!("Success"),
             _ => panic!("improper header"),
         }
         let dim_count = unpack_int(fp);
-        let mut dimensions = HashMap::<String, Dimension>::new();
+        let mut dimensions = Vec::<Dimension>::new();
         for _ in 0..dim_count {
             let name_len = unpack_int(fp);
             let name = unpack_string(fp, name_len as usize);
             let forward_amt = modulo(-1i32 * name_len as i32, 4);
             unpack_string(fp, forward_amt as usize);
             let size = unpack_int(fp);
-            dimensions.insert(
-                name.clone(),
-                Dimension::new(name.clone(), size as u64, Dtype::Float32),
-            );
+            let dimension = Dimension::new(name.clone(), size as u64, Dtype::Float32);
+            dimensions.push(dimension);
         }
         dimensions
     }

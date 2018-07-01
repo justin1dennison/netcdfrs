@@ -3,9 +3,11 @@ use std::collections::HashMap;
 use std::fs::File;
 
 use attributes::Attribute;
+use constants::typemap;
 use dimension::Dimension;
 use dtype::Dtype;
-use helpers::{unpack_int, unpack_string};
+use helpers::*;
+use shape::Shape;
 use variable::Variable;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -39,30 +41,56 @@ impl Dataset {
         let version_byte = fp.read_u8().unwrap();
         let numrecs = unpack_int(&mut fp);
         let dimensions = Dimension::from_file(&mut fp);
+        let dimensions_map = &dimensions
+            .iter()
+            .map(|d| (d.name.clone(), d.clone()))
+            .collect::<HashMap<String, Dimension>>();
         let attributes = Attribute::from_file(&mut fp);
-        let variables = HashMap::<String, Variable>::new();
+        let mut variables = HashMap::<String, Variable>::new();
         let varheader = unpack_int(&mut fp);
         match varheader {
-            0 | 11 => println!("successfully read varheader: {}", varheader),
+            0 | 11 => varheader,
             _ => panic!("Couldn't read the varheader"),
-        }
+        };
         let varcount = unpack_int(&mut fp);
+        //this is the single iteration
         for v in 0..varcount {
             let name_len = unpack_int(&mut fp);
             let name = unpack_string(&mut fp, name_len as usize);
-            println!("{:?}", name);
-            let mut dims = vec![];
-            // let shape = vec![];
+            let forward_amt = modulo(-1i32 * name_len as i32, 4);
+            unpack_string(&mut fp, forward_amt as usize);
             let dimnum = unpack_int(&mut fp);
-            for _d in 0..dimnum {
-                let dimid = unpack_int(&mut fp);
-                dims.push(dimid);
+            let mut dimnames = vec![];
+            let mut shape = vec![];
+            for i in 0..dimnum {
+                let id: i32 = unpack_int(&mut fp);
+                let dim = &dimensions.get(id as usize).unwrap();
+                dimnames.push(dim.name.clone());
+                shape.push(&dim.size);
             }
+            let var_attrs = Attribute::from_file(&mut fp);
+            let nc_type = unpack_int(&mut fp);
+            let vsize = unpack_int(&mut fp);
+            let begin = if version_byte - 1 == 0 {
+                unpack_int(&mut fp)
+            } else {
+                unpack_int64(&mut fp) as i32
+            };
+            let (typecode, size) = typemap()[&(nc_type as u8)];
+            let dtype = format!(">{}", typecode);
+            let variable = Variable {
+                name,
+                shape: shape.iter().map(|v| **v as u32).collect(),
+                dtype: Dtype::Float32,
+                dimensions: dimnames,
+                attributes: var_attrs
+            };
+            variables.insert(variable.name.clone(), variable);
         }
         Dataset {
             filename: Some(filename),
             variables,
-            dimensions,
+            dimensions: dimensions_map.clone(),
             attributes,
             version: version_byte as i32,
             numrecs,
@@ -84,6 +112,7 @@ impl Dataset {
         name: String,
         dtype: Dtype,
         dimensions: Vec<Dimension>,
+        attributes: HashMap<String, String>
     ) -> Variable {
         let shape = dimensions
             .iter()
@@ -92,8 +121,9 @@ impl Dataset {
         let variable = Variable {
             name: name.clone(),
             dtype,
-            dimensions,
+            dimensions: dimensions.iter().map(|d| d.name.clone()).collect(),
             shape,
+            attributes
         };
         self.variables.insert(name.clone(), variable.clone());
         return variable;

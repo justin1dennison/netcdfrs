@@ -5,6 +5,7 @@ extern crate serde_json;
 extern crate serde_derive;
 
 pub mod attributes;
+mod constants;
 pub mod dataset;
 pub mod dimension;
 pub mod dtype;

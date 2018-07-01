@@ -1,4 +1,4 @@
-use dimension::Dimension;
+use std::collections::HashMap;
 use dtype::Dtype;
 use shape::Shape;
 
@@ -6,6 +6,7 @@ use shape::Shape;
 pub struct Variable {
     pub name: String,
     pub shape: Shape,
-    pub dimensions: Vec<Dimension>,
+    pub dimensions: Vec<String>,
     pub dtype: Dtype,
+    pub attributes: HashMap<String, String>
 }

@@ -20,3 +20,10 @@ pub fn unpack_string(fp: &mut File, length: usize) -> String {
     fp.read(&mut buf).unwrap();
     buf.iter().map(|s| *s).map(char::from).collect::<String>()
 }
+
+pub fn unpack_int64(fp: &mut File) -> i64 {
+    match fp.read_i64::<BigEndian>() {
+        Ok(val) => val,
+        Err(msg) => panic!("Encountered Error: {}", msg),
+    }
+}
