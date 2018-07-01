@@ -9,6 +9,7 @@ pub mod dimension;
 pub mod dtype;
 pub mod shape;
 pub mod variable;
+pub mod attributes;
 mod helpers;
 
 pub mod prelude {
@@ -17,5 +18,6 @@ pub mod prelude {
     pub use dtype::Dtype;
     pub use shape::Shape;
     pub use variable::Variable;
+    pub use attributes::Attribute;
 }
 
