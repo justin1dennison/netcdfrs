@@ -1,15 +1,13 @@
-use byteorder::{BigEndian, ReadBytesExt};
 use std::collections::HashMap;
 use std::fs::File;
-use std::io::Read;
+use byteorder::{BigEndian, ReadBytesExt};
 
 use dimension::Dimension;
 use dtype::Dtype;
 use variable::Variable;
+use helpers::{unpack_int, unpack_string, modulo};
 
-fn modulo(a: i32, b: i32) -> i32 {
-    ((a % b) + b) % b
-}
+
 
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -22,20 +20,7 @@ pub struct Dataset {
     pub numrecs: i32,
 }
 
-fn unpack_int(fp: &mut File) -> i32 {
-    match fp.read_i32::<BigEndian>() {
-        Ok(val) => val,
-        Err(msg) => {
-            panic!("Encountered Error: {}", msg);
-        }
-    }
-}
 
-fn unpack_string(fp: &mut File, length: usize) -> String {
-    let mut buf = vec![0u8; length];
-    fp.read(&mut buf).unwrap();
-    buf.iter().map(|s| *s).map(char::from).collect::<String>()
-}
 
 impl Dataset {
     pub fn new() -> Dataset {

@@ -9,6 +9,7 @@ pub mod dimension;
 pub mod dtype;
 pub mod shape;
 pub mod variable;
+mod helpers;
 
 pub mod prelude {
     pub use dataset::Dataset;
