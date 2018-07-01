@@ -1,13 +1,12 @@
+use byteorder::ReadBytesExt;
 use std::collections::HashMap;
 use std::fs::File;
-use byteorder::{ReadBytesExt};
 
+use attributes::Attribute;
 use dimension::Dimension;
 use dtype::Dtype;
+use helpers::{unpack_int, unpack_string};
 use variable::Variable;
-use helpers::{unpack_int, unpack_string, modulo};
-use attributes::Attribute;
-
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Dataset {

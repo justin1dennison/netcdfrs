@@ -1,5 +1,5 @@
-use std::fs::File;
 use std::collections::HashMap;
+use std::fs::File;
 
 use dtype::Dtype;
 use helpers::*;
@@ -37,5 +37,4 @@ impl Dimension {
         }
         dimensions
     }
-
 }
