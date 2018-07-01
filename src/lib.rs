@@ -18,13 +18,3 @@ pub mod prelude {
     pub use variable::Variable;
 }
 
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
-//     #[test]
-//     fn can_create_a_netcdf_file() {
-//         let expected = "awesome.nc".to_string();
-//         let actual = dataset::Dataset::open("awesome.nc".to_string());
-//         assert_eq!(expected, actual.filename.unwrap());
-//     }
-// }
