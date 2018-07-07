@@ -7,7 +7,6 @@ use constants::typemap;
 use dimension::Dimension;
 use dtype::Dtype;
 use helpers::*;
-use shape::Shape;
 use variable::Variable;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -80,10 +79,12 @@ impl Dataset {
             let dtype = format!(">{}", typecode);
             let variable = Variable {
                 name,
-                shape: shape.iter().map(|v| **v as u32).collect(),
-                dtype: Dtype::Float32,
-                dimensions: dimnames,
-                attributes: var_attrs
+                shape: Some(shape.iter().map(|v| **v as u32).collect()),
+                dtype: Some(Dtype::Float32),
+                dimensions: Some(dimnames),
+                attributes: Some(var_attrs),
+                typecode: Some(typecode.to_string()),
+                size: Some(shape.iter().fold(1, |acc, next| acc * **next))
             };
             variables.insert(variable.name.clone(), variable);
         }
@@ -112,7 +113,7 @@ impl Dataset {
         name: String,
         dtype: Dtype,
         dimensions: Vec<Dimension>,
-        attributes: HashMap<String, String>
+        attributes: HashMap<String, String>,
     ) -> Variable {
         let shape = dimensions
             .iter()
@@ -120,10 +121,12 @@ impl Dataset {
             .collect::<Vec<u32>>();
         let variable = Variable {
             name: name.clone(),
-            dtype,
-            dimensions: dimensions.iter().map(|d| d.name.clone()).collect(),
-            shape,
-            attributes
+            dtype: Some(dtype),
+            dimensions: Some(dimensions.iter().map(|d| d.name.clone()).collect()),
+            shape: Some(shape.clone()),
+            attributes: Some(attributes),
+            typecode: None,
+            size: Some(shape.iter().fold(1, |acc, next| acc * next) as u64)
         };
         self.variables.insert(name.clone(), variable.clone());
         return variable;
